@@ -303,7 +303,15 @@ impl<'de, 'a, 'b, 's, 'x> de::Deserializer<'de>
       .map(|x| x.into())
       // Filter keys to drop keys whose value is undefined
       // TODO: optimize, since this doubles our get calls
-      .filter(|key| !obj.get(self.scope, *key).unwrap().is_undefined())
+      .filter_map(|key: v8::Local<v8::Value>| {
+        if obj.get(self.scope, key).unwrap().is_undefined() {
+          None
+        } else if key.is_string() {
+          Some(key)
+        } else {
+          key.to_string(self.scope).map(|s| s.into())
+        }
+      })
       .collect();
 
     let map = MapAccess {

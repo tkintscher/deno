@@ -291,6 +291,32 @@ detest!(
     .collect()
   )
 );
+detest!(
+  de_json_object_with_numbers,
+  serde_json::Value,
+  "({ 1: 'one', b: { 2: 'two' } })",
+  serde_json::Value::Object(
+    vec![
+      (
+        "1".to_string(),
+        serde_json::Value::String("one".to_string()),
+      ),
+      (
+        "b".to_string(),
+        serde_json::Value::Object(
+          vec![(
+            "2".to_string(),
+            serde_json::Value::String("two".to_string()),
+          ),]
+          .drain(..)
+          .collect()
+        )
+      )
+    ]
+    .drain(..)
+    .collect()
+  )
+);
 detest!(de_bigint_u64, u64, "BigInt(2**59)", 1 << 59);
 detest!(de_bigint_i64, i64, "BigInt(-(2**59))", -(1 << 59));
 
